@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Group Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>Predicting Race/Ethnicity from Test Scores</h1>
+        <p>Logistic Regression trained on the Kaggle Students Performance dataset (36% accuracy vs. 32% for always guessing the largest group).
+           This app demonstrates how a model can look confident while having almost no real signal.</p>
+    </header>
+
+    <div class="card">
+        <form action="{{ url_for('predict') }}" method="POST">
+            <div class="grid">
+                <div class="field">
+                    <label for="math_score">Math Score</label>
+                    <input type="number" id="math_score" name="math_score" min="0" max="100" required
+                           value="{{ request.form.get('math_score', '') }}">
+                    <small>0–100</small>
+                </div>
+                <div class="field">
+                    <label for="reading_score">Reading Score</label>
+                    <input type="number" id="reading_score" name="reading_score" min="0" max="100" required
+                           value="{{ request.form.get('reading_score', '') }}">
+                    <small>0–100</small>
+                </div>
+                <div class="field">
+                    <label for="writing_score">Writing Score</label>
+                    <input type="number" id="writing_score" name="writing_score" min="0" max="100" required
+                           value="{{ request.form.get('writing_score', '') }}">
+                    <small>0–100</small>
+                </div>
+            </div>
+            <button type="submit">Predict</button>
+        </form>
+
+        {% if predict %}
+        <div class="result neutral">
+            Predicted: {{ predict }}
+        </div>
+
+        <!-- One bar per group, highest probability first -->
+        <div class="probs">
+            {% for group, pct in probabilities %}
+            <div class="prob-row">
+                <span>{{ group }}</span>
+                <div class="prob-track"><div class="prob-fill" style="width: {{ pct }}%"></div></div>
+                <span class="prob-value">{{ pct }}%</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <p class="note">
+            Notice how close the percentages are: the model is barely more confident in its top pick than in the others.
+            It never predicts groups A or B on the test set and guesses group C for about 68% of students.
+            Test scores should not be used to infer anyone's race or ethnicity.
+        </p>
+        {% endif %}
+    </div>
+
+    <footer>
+        For educational purposes only. ·
+        <a href="https://github.com/jannarhoyne-sys/student-performance-flask">View on GitHub</a>
+        <br>
+        J. Hoyne · ANA680
+    </footer>
+
+</div>
+</body>
+</html>
